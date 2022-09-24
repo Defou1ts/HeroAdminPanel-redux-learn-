@@ -1,34 +1,39 @@
-import { useHttp } from '../../hooks/http.hook';
-import { useEffect, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useCallback, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 
-import { heroDeleted, fetchHeroes, filteredHeroesSelector } from './heroesSlice';
+import { useGetHeroesQuery, useDeleteHeroMutation } from '../../api/apiSlice';
 import HeroesListItem from "../heroesListItem/HeroesListItem";
 import Spinner from '../spinner/Spinner';
 
 const HeroesList = () => {
 
+    const {
+        data: heroes = [],
+        isLoading,
+        isError,
+    } = useGetHeroesQuery()
 
+    const [deleteHero] = useDeleteHeroMutation();
 
-    const filteredHeroes = useSelector(filteredHeroesSelector)
-    const heroesLoadingStatus = useSelector(state => state.heroes.heroesLoadingStatus);
-    const dispatch = useDispatch();
-    const { request } = useHttp();
+    const activeFilter = useSelector(state => state.filters.activeFilter)
 
-    useEffect(() => {
-        dispatch(fetchHeroes())
-        // eslint-disable-next-line
-    }, []);
+    const filteredHeroes = useMemo(() => {
+        const filteredHeroes = heroes.slice()
 
-    const deleteHero = useCallback((id) => {
-        request(`http://localhost:3001/heroes/${id}`, "DELETE")
-            .then(dispatch(heroDeleted(id)))
-            .catch(error => console.log(error))
-    }, [request])
+        if (activeFilter === 'all') {
+            return filteredHeroes;
+        } else {
+            return filteredHeroes.filter(item => item.element === activeFilter)
+        }
+    }, [heroes, activeFilter])
 
-    if (heroesLoadingStatus === "loading") {
+    const onDelete = useCallback((id) => {
+        deleteHero(id)
+    }, [])
+
+    if (isLoading) {
         return <Spinner />;
-    } else if (heroesLoadingStatus === "error") {
+    } else if (isError) {
         return <h5 className="text-center mt-5">Ошибка загрузки</h5>
     }
 
@@ -37,7 +42,7 @@ const HeroesList = () => {
             return <h5 className="text-center mt-5">Героев пока нет</h5>
         }
         return arr.map(({ id, ...props }) => {
-            return <HeroesListItem key={id} deleteHero={() => deleteHero(id)} {...props} />
+            return <HeroesListItem key={id} onDelete={() => onDelete(id)} {...props} />
         })
     }
 

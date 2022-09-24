@@ -1,10 +1,22 @@
 {
   "heroes": [
     {
-      "id": "95aa33fe-d5d3-43df-be75-636f1afeaa94",
-      "name": "Максим",
-      "description": "екпкп",
+      "id": "024df273-f7e2-4379-ad23-0b2ada87cfa4",
+      "name": "Renery",
+      "description": "213131",
       "element": "water"
+    },
+    {
+      "id": "d83e5d5c-0a87-4fea-91b3-f33a616bea05",
+      "name": "Вася",
+      "description": "131231",
+      "element": "wind"
+    },
+    {
+      "id": "704a8d87-7248-4dc9-b6d9-ee4e9dae075e",
+      "name": "123",
+      "description": "234324234",
+      "element": "earth"
     }
   ],
   "filters": [

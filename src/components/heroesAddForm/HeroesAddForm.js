@@ -4,19 +4,26 @@ import { v4 as uuidv4 } from 'uuid';
 
 import Spinner from '../spinner/Spinner';
 
-import { heroCreated } from '../heroesList/heroesSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { useCreateHeroMutation } from '../../api/apiSlice';
+import { selectAll } from '../heroesFilters/filtersSlice';
+import store from '../../store';
 
 const HeroesAddForm = () => {
+
+
 
     const [heroName, setHeroName] = useState('')
     const [heroDescr, setHeroDescr] = useState('')
     const [heroElement, setHeroElement] = useState('')
 
+    const [createHero, { isLoading }] = useCreateHeroMutation();
+
     const { request } = useHttp();
     const dispatch = useDispatch();
 
-    const { filters, filtersLoadingStatus } = useSelector(state => state.filters)
+    const filters = selectAll(store.getState())
+    const { filtersLoadingStatus } = useSelector(state => state.filters)
 
     const onSubmitHandler = (e) => {
         e.preventDefault();
@@ -28,10 +35,7 @@ const HeroesAddForm = () => {
             element: heroElement
         }
 
-        request("http://localhost:3001/heroes", "POST", JSON.stringify(newHero))
-            .then(res => console.log(res, 'Отправка успешна'))
-            .then(dispatch(heroCreated(newHero)))
-            .catch(err => console.log(err));
+        createHero(newHero).unwrap()
 
         setHeroName('');
         setHeroDescr('');
